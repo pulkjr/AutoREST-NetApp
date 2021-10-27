@@ -72,8 +72,7 @@
                     "application/json"
                 ],
                 "produces": [
-                    "application/json",
-                    "*/*"
+                    "application/json"
                 ],
                 "parameters": [
                     {
@@ -120,8 +119,7 @@
                     "application/json"
                 ],
                 "produces": [
-                    "application/json",
-                    "*/*"
+                    "application/json"
                 ],
                 "parameters": [
                     {
@@ -229,7 +227,7 @@
                         "in": "path",
                         "description": "backupId",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     }
                 ],
                 "responses": {
@@ -339,7 +337,7 @@
                         "in": "path",
                         "description": "backupId",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     },
                     {
                         "in": "body",
@@ -400,7 +398,7 @@
                         "in": "path",
                         "description": "backupId",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     }
                 ],
                 "responses": {
@@ -449,7 +447,7 @@
                         "in": "path",
                         "description": "backupId",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     }
                 ],
                 "responses": {
@@ -552,7 +550,7 @@
                         "in": "path",
                         "description": "backupId",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     }
                 ],
                 "responses": {
@@ -848,7 +846,7 @@
                     "Job"
                 ],
                 "summary": "Mark selected jobs as failed",
-                "description": "Provide the list of job IDs which need to be marked as failed explicitely. These jobs will be marked as failed and error message will be updated as 'Marking Job as failed'",
+                "description": "Provide the list of job IDs which need to be marked as failed explicitly. These jobs will be marked as failed and error message will be updated as 'Marking Job as failed'",
                 "operationId": "stopJobUsingPOST",
                 "consumes": [
                     "application/json"
@@ -872,6 +870,13 @@
                         "schema": {
                             "$ref": "#/definitions/JobIdList"
                         }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id",
+                        "required": true,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -995,8 +1000,7 @@
                     "application/json"
                 ],
                 "produces": [
-                    "application/json",
-                    "*/*"
+                    "application/json"
                 ],
                 "parameters": [
                     {
@@ -2995,7 +2999,7 @@
                     "type": "string"
                 },
                 "backupId": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "vmdkLocation": {
                     "type": "array",
@@ -3079,7 +3083,7 @@
             ],
             "properties": {
                 "backupId": {
-                    "type": "string"
+                    "type": "integer"
                 }
             }
         },
