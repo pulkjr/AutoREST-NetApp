@@ -1,0 +1,16 @@
+powershell: true
+version: latest
+input-file: um97_v2.yaml
+title: NetApp.AiqUM
+use: '@autorest/powershell@latest'
+module-version: 0.1.0
+subject-prefix: 'Um'
+azure: false
+namespace: NetApp.AiqUM
+output-folder: ..\..\NetApp.AiqUM
+clear-output-folder: true
+use-internal-constructors: true
+use-datetimeoffset : true
+directive:
+- no-inline:  # choose ONE of these models to disable inlining
+  - 

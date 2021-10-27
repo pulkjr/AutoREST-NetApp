@@ -1,0 +1,16 @@
+powershell: true
+version: latest
+input-file: scv.api-docs.json
+title: NetApp.SCV
+use: '@autorest/powershell@latest'
+module-version: 0.1.0
+subject-prefix: 'Scv'
+azure: false
+namespace: NetApp.SCV
+output-folder: ..\..\NetApp.SCV
+clear-output-folder: true
+use-internal-constructors: true
+use-datetimeoffset : true
+directive:
+- no-inline:  # choose ONE of these models to disable inlining
+  - File
