@@ -2980,10 +2980,7 @@
                 "entityList": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "datastore-90"
-                        ]
+                        "type": "string"
                     }
                 }
             }
@@ -3169,10 +3166,7 @@
                 "datastoreMorefList": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "datastore-21"
-                        ]
+                        "type": "string"
                     }
                 }
             }
@@ -3200,10 +3194,7 @@
                 "vmdksToDetach": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "[Datastore: test_N(sc-20171211173521807)] NFS_232_VM1/NFS_232_VM1.vmdk"
-                        ]
+                        "type": "string"
                     }
                 }
             }
@@ -3412,10 +3403,8 @@
                     "items": {
                         "type": "integer",
                         "format": "int64",
-                        "enum": [
-                            1,
-                            2
-                        ]
+                        "minimum": 1,
+                        "maximum": 2
                     }
                 }
             }
@@ -3712,10 +3701,7 @@
                     "type": "array",
                     "description": "List of recipient addresses comma seperated.",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "foo@acme.com"
-                        ]
+                        "type": "string"
                     }
                 },
                 "subject": {
@@ -3781,10 +3767,7 @@
                 "entities": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "datastore-90"
-                        ]
+                        "type": "string"
                     }
                 },
                 "isCustomSnapshot": {
@@ -4497,28 +4480,19 @@
                 "daysForMonthlyPolicy": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "31"
-                        ]
+                        "type": "string"
                     }
                 },
                 "daysForWeeklyPolicy": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "1"
-                        ]
+                        "type": "string"
                     }
                 },
                 "monthsForMonthlyPolicy": {
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "enum": [
-                            "12"
-                        ]
+                        "type": "string"
                     }
                 },
                 "reccurrenceForDailyPolicy": {

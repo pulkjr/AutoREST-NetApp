@@ -1,0 +1,3399 @@
+swagger: "2.0"
+info:
+  description: >-
+    Use the below REST APIs to protect VMs, VMDKs, and Datastores. For
+    application-consistent data protection of applications, databases, and host
+    file systems, including those running inside a VM, use the SnapCenter REST
+    APIs available at
+    <br>https://{SC_Server_hostname}:{SC_Server_port}/swagger</p>
+  version: "4.1"
+  title: REST APIs for SnapCenter Plug-in for VMware vSphere
+  termsOfService: urn:tos
+  contact: {}
+host: um97:8144
+basePath: /api
+tags:
+  - name: Policy
+    description: " "
+  - name: Version
+    description: " "
+  - name: Auth
+    description: " "
+  - name: Reports
+    description: " "
+  - name: DataStore
+    description: " "
+  - name: Job
+    description: " "
+  - name: SnapCenter Server
+    description: " "
+  - name: Backup
+    description: " "
+  - name: Resource Group
+    description: " "
+  - name: Virtual Machine
+    description: " "
+  - name: vCenter
+    description: " "
+  - name: Storage System
+    description: " "
+paths:
+  /4.1/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login to SCV
+      description: >-
+        Pass vCenter credentials to this API to get the Token generated from the
+        vSphere Server. If "username" contains a domain name, please seperate
+        them by "\\\\".
+      operationId: loginUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: loginRequest
+          description: loginRequest
+          required: true
+          schema:
+            $ref: "#/definitions/LoginRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/LoginResponse"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/auth/logout:
+    delete:
+      tags:
+        - Auth
+      summary: Logout from SCV
+      description: Logout from SCV using the Token generated from Login step.
+      operationId: logoutUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/LoginResponse"
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /4.1/backups:
+    delete:
+      tags:
+        - Backup
+      summary: Delete a backup.
+      description: Provide the list of backup Ids of the backups to be deleted.
+      operationId: deleteBackupsUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - in: body
+          name: deleteBackupsRequest
+          description: deleteBackupsRequest
+          required: true
+          schema:
+            $ref: "#/definitions/DeleteBackupsRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /4.1/backups/{backupId}:
+    get:
+      tags:
+        - Backup
+      summary: Get Backup Details for a backup.
+      description: Pass the backup Id to get its details.
+      operationId: getBackupByIdUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/backups/{id}:
+    put:
+      tags:
+        - Backup
+      summary: Rename a Backup.
+      description: Pass the backup Id and provide new name for the backup.
+      operationId: renameBackupUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: string
+        - in: body
+          name: renameBackupRequest
+          description: renameBackupRequest
+          required: true
+          schema:
+            $ref: "#/definitions/RenameBackupRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/datastores/backups/{backupId}/mount:
+    post:
+      tags:
+        - DataStore
+      summary: Mount datastores for a backup
+      description: >-
+        Pass the backup Id and provide the list of datastore name and mount
+        location belonging to that backup Id for mounting. 
+         Please follow the steps below prior to executing this command to get all the required parameters.
+         1. Execute the API 'Get the list of backups for a datastore', to get the list of backups for a datastore. 
+         2. Choose a backup Id from the previous step for which you want to mount datastores. 
+         3. Execute the API 'Get the list of Snapshot Locations.' using the backup from step 2. 
+         4. Get the details of datastore name and location and fill the details in Mount Request. 
+         5. Execute the API 'Get the list of Available Esxi Hosts.' to get the available Esxi host(s) and choose any host and pass it as a Hostname attribute to the Mount Request.
+      operationId: mountBackupUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+        - in: body
+          name: mountRequest
+          description: mountRequest
+          required: true
+          schema:
+            $ref: "#/definitions/MountRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/datastores/backups/{backupId}/mounted:
+    get:
+      tags:
+        - DataStore
+      summary: Get the list of mounted datastores.
+      description: >-
+        Pass the backup Id to get the list of mounted datastores under it. This
+        info will be used for UnMount Request.
+      operationId: getMountedDatastoreListUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/datastores/backups/{backupId}/snapshotLocators:
+    get:
+      tags:
+        - DataStore
+      summary: Get the list of Snapshot Locations.
+      description: >-
+        Pass the backup Id to get the list of Snapshot Locations for it. This
+        info will be used in Mount Request.
+      operationId: getSnapshotLocatorsUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/datastores/unmount:
+    post:
+      tags:
+        - DataStore
+      summary: UnMount datastores for a backup
+      description: >-
+        Provide the list of datastore Morefs to be unmounted. To get the Morefs,
+        execute API 'Get the list of mounted datastores.' and choose the
+        datastore morefs which you want to unmount.
+      operationId: unmountBackupUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - in: body
+          name: morefList
+          description: morefList
+          required: true
+          schema:
+            $ref: "#/definitions/DatastoreMorefList"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/datastores/{backupId}/cleanup:
+    delete:
+      tags:
+        - DataStore
+      summary: Cleanup out of band deleted datastores of a backup
+      description: Pass the backup Id to cleanup all out of band deleted datastores
+      operationId: cleanupBakcupUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /4.1/datastores/{moref}/availableEsxHosts:
+    get:
+      tags:
+        - DataStore
+      summary: Get the list of Available Esxi Hosts.
+      description: >-
+        Pass the datastore moref to get all the available hosts for that
+        datastore. This info will be used in Mount Request.
+      operationId: getAvailableEsxHostsUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/datastores/{moref}/backups:
+    get:
+      tags:
+        - DataStore
+      summary: Get the list of backups for a datastore.
+      description: >-
+        Pass the datastore moref to get all the backups under it. This info can
+        be used for getting snapshot Locations for ba particular Backup Id.
+      operationId: getBackupListUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/datastores/{moref}/getLatestBackup:
+    get:
+      tags:
+        - DataStore
+      summary: Get lastest backup for a datastore.
+      description: >-
+        Pass the datastore moref to get all the backups under it. This info can
+        be used for getting snapshot Locations for ba particular Backup Id.
+      operationId: getLatestBackupUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/jobs:
+    get:
+      tags:
+        - Job
+      summary: Get all jobs
+      description: |2-
+
+         1. The offset filter, defines the start index. If not specfied it defaults to 1. 
+         2. limit filter defines the number of records to be fetched. If not specified, defaults to 100. If limit is given as 0, it will consider it as no value/default value i.e. 100. 
+         3. status lets you filter on the job status, Values can be 'completed', 'failed', 'warning', 'running'.
+         4. type filter filters on the type of jobs to return. Values can be 'backup', 'mountBackup' and 'restore'.
+         Please note that this API will return all create backup Jobs, rename backup Jobs and delete backup Jobs.
+      operationId: getJobsUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: limit
+          in: query
+          description: limit
+          required: false
+          type: integer
+          format: int32
+        - name: offset
+          in: query
+          description: offset
+          required: false
+          type: integer
+          format: int32
+        - name: status
+          in: query
+          description: status
+          required: false
+          type: string
+        - name: type
+          in: query
+          description: type
+          required: false
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«List«Job»»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/jobs/{id}:
+    get:
+      tags:
+        - Job
+      summary: Get job details
+      description: Gets the details for a job on the job monitor.
+      operationId: getJobDetailsUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«Job»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/jobs/{id}/failJobs:
+    post:
+      tags:
+        - Job
+      summary: Mark selected jobs as failed
+      description: >-
+        Provide the list of job IDs which need to be marked as failed
+        explicitly. These jobs will be marked as failed and error message will
+        be updated as 'Marking Job as failed'
+      operationId: stopJobUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - in: body
+          name: jobIDs
+          description: jobIDs
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/jobs/{id}/logs:
+    get:
+      tags:
+        - Job
+      summary: getJobLogsById
+      operationId: getJobLogsByIdUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/octet-stream
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/InputStreamResource"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/policies:
+    get:
+      tags:
+        - Policy
+      summary: Get Policies
+      operationId: getPolicyUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    post:
+      tags:
+        - Policy
+      summary: Create Policy
+      description: >-
+        Possible Frequency values are: Hourly, Daily, Weekly, Monthly, OnDemand.
+        Possible Retention Type values are Days_To_Keep, Backups_To_Keep,
+        Never_Expire. If scripts contain directory names, please seperate them
+        by "\\\\".
+      operationId: addPolicyUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - in: body
+          name: policyRequest
+          description: policyRequest
+          required: true
+          schema:
+            $ref: "#/definitions/PolicyRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/policies/{id}:
+    get:
+      tags:
+        - Policy
+      summary: Get Policy by Id
+      description: Pass the Id along with the token to retrieve the required Policy
+      operationId: getPolicyByIdUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    delete:
+      tags:
+        - Policy
+      summary: Delete Policy by Id
+      description: Pass the Id along with the token to delete the required Policy
+      operationId: deletePolicyByIdUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+    patch:
+      tags:
+        - Policy
+      summary: Update Policy By Id
+      description: >-
+        Pass only fields you want to update in the request body. Name can not be
+        updated as part of update Request. Possible Frequency values are:
+        Hourly, Daily, Weekly, Monthly, OnDemand. Possible Retention Type values
+        are Days_To_Keep, Backups_To_Keep, Never_Expire. If scripts contain
+        directory names, please seperate them by "\\\\".
+      operationId: updatePolicyUsingPATCH
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: id
+          required: true
+          type: string
+        - in: body
+          name: updatePolicyReq
+          description: updatePolicyReq
+          required: true
+          schema:
+            $ref: "#/definitions/PolicyRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /4.1/reports/protectedVM:
+    get:
+      tags:
+        - Reports
+      summary: Get Protected VM List
+      description: Get list of protected VMs for 7 days.
+      operationId: getProtectedVmListUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«ProtectedVmList»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/reports/unProtectedVM:
+    get:
+      tags:
+        - Reports
+      summary: Get UnProtected VM List
+      description: Get list of unprotected VMs for 7 days.
+      operationId: getUnProtectedVmListUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«UnProtectedVmList»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/resource-groups:
+    get:
+      tags:
+        - Resource Group
+      summary: Get List of Resource Groups
+      description: Shows the details of all the Resource Groups.
+      operationId: getResourceGroupAllUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    post:
+      tags:
+        - Resource Group
+      summary: Create a Resource Group
+      description: >-
+        Provide the details of the Resource Group to create a new one.
+         Valid values for Notification are: Never(Default), Always, Errors, Errors_Or_Warnings. 
+        Valid values for entities is a list of morefs(vms/datastores). 
+
+        Valid values for Spanning Type are: INCLUDE_ALL(default), EXCLUDE_ALL &
+        MANUAL. Please provide datastore moref list in case of MANUAL. 
+
+        Valid values for DaysforWeeklyPolicy takes List of days between 1-7,
+        Valid values for DaysforMonthlyPolicy takes List of days between 1-31
+        and Valid values for MonthsforMonthlyPolicy takes List of months between
+        1-12. The StartDate format is yyyy-MM-dd and it is local date of
+        SnapCenter Server. StartHour is 24 hour military time.
+
+        To use a custom snapshot format, set isCustomSnapshot to true and
+        provide a format using customSnapshotFormat field.  The format must be a
+        concatenation of the following values: $ResourceGroup, $Policy,
+        $ScheduleType, $HostName, $CustomText. For example, a valid format is
+        $ResourceGroup$Policy$CustomText.  If using custom text, provide custom
+        text with the customSnapshotText field.  Format will always have
+        Timestamp appended to the end.  If not using custom snapshot, The
+        default snapshot format is ResourceGroup_HostName_Timestamp.
+      operationId: createResourceGroupUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - in: body
+          name: resourceGroup
+          description: resourceGroup
+          required: true
+          schema:
+            $ref: "#/definitions/ResourceGroupRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/resource-groups/backupnow:
+    post:
+      tags:
+        - Resource Group
+      summary: Run a backup on a Resource Group
+      description: Pass the Resource Group Id and Policy Id for taking a backup.
+      operationId: takeBackupUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - in: body
+          name: backupRequest
+          description: backupRequest
+          required: true
+          schema:
+            $ref: "#/definitions/BackupRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/resource-groups/resume/{resouceGroupId}:
+    put:
+      tags:
+        - Resource Group
+      summary: Resume a Resource Group
+      description: Pass the Id of the Resource group to be resumed.
+      operationId: resumeUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: resouceGroupId
+          in: path
+          description: resouceGroupId
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/resource-groups/suspend/{resouceGroupId}:
+    put:
+      tags:
+        - Resource Group
+      summary: Suspend a Resource Group
+      description: Pass the Id of the Resource group to be suspended.
+      operationId: suspendUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: resouceGroupId
+          in: path
+          description: resouceGroupId
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/resource-groups/{resouceGroupId}:
+    get:
+      tags:
+        - Resource Group
+      summary: Get a Resource Group by Id
+      description: Pass the Id of the Resoirce Group to see its details.
+      operationId: getResourceGroupUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: resouceGroupId
+          in: path
+          description: resouceGroupId
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    put:
+      tags:
+        - Resource Group
+      summary: Update a Resource Group
+      description: >-
+        Pass the Id of the Resource Group to be edited. Provide the Resource
+        Group details with the updated values. All the fields are editable
+        including the name. Please note that these details will override the
+        previous exisiting details for the mentioned Resource Group. Valid
+        values for Notification are: Never(Default), Always, Errors,
+        Errors_Or_Warnings. Valid values for entities is a list of
+        morefs(vms/datastores). Valid values for Spanning Type are:
+        INCLUDE_ALL(default), EXCLUDE_ALL & MANUAL. Please provide datastore
+        moref list in case of MANUAL. Valid values for DaysforWeeklyPolicy takes
+        List of days between 1-7, Valid values for DaysforMonthlyPolicy takes
+        List of days between 1-31 and Valid values for MonthsforMonthlyPolicy
+        takes List of months between 1-12. The StartDate format is yyyy-MM-dd
+        and it is local date of SnapCenter Server. StartHour is 24 hour military
+        time.
+
+        To use a new custom snapshot format, set isCustomSnapshot to true. To
+        remove an existing custom snapshot, set isCustomSnapshot to false.  To
+        make no changes to existing custom snapshot, set IsCustomSnapshot to
+        null. If setting to true, use the customSnapshotFormat field.  The
+        format must be a concatenation of the following values: $ResourceGroup,
+        $Policy, $ScheduleType, $HostName, $CustomText. For example, a valid
+        format is $ResourceGroup$Policy$CustomText. If using custom text,
+        provide custom text with the customSnapshotText field.  Format will
+        always have Timestamp appended to the end.  If not using custom
+        snapshot, the default snapshot format is
+        ResourceGroup_HostName_Timestamp.
+      operationId: updateReourceGroupUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: resouceGroupId
+          in: path
+          description: resouceGroupId
+          required: true
+          type: string
+        - in: body
+          name: resourceGroup
+          description: resourceGroup
+          required: true
+          schema:
+            $ref: "#/definitions/ResourceGroupRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    delete:
+      tags:
+        - Resource Group
+      summary: Delete a Resource Group
+      description: Pass the Id of the Resource group to be deleted.
+      operationId: deleteUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: resouceGroupId
+          in: path
+          description: resouceGroupId
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /4.1/resource-groups/{resouceGroupId}/entity:
+    patch:
+      tags:
+        - Resource Group
+      summary: Add an Entity to a Resource Group
+      description: >-
+        Pass the Resource Group Id and provide a list of Entity morefs -
+        datastores & vms - to be added to the existing Resource Group. For
+        example, use ["vm-54"] to add one vm, or comma sepparated such as
+        ["vm-54", "vm-55"] to add multiple.
+      operationId: addEntityUsingPATCH
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: resouceGroupId
+          in: path
+          description: resouceGroupId
+          required: true
+          type: string
+        - in: body
+          name: entityList
+          description: entityList
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+            example: ["vm-54", "vm-55"]
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /4.1/snapcenterserver/email:
+    get:
+      tags:
+        - SnapCenter Server
+      summary: Get Email Settings
+      operationId: getEmailConfigurationUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    post:
+      tags:
+        - SnapCenter Server
+      summary: Set Email Settings
+      operationId: setEmailConfigurationUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - in: body
+          name: emailConfigurationRequest
+          description: emailConfigurationRequest
+          required: true
+          schema:
+            $ref: "#/definitions/EmailConfigurationRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/storage-system:
+    get:
+      tags:
+        - Storage System
+      summary: getSvmAll
+      operationId: getSvmAllUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«StorageVirtualMachineList»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    post:
+      tags:
+        - Storage System
+      summary: Add Storage System
+      description: >-
+        Possible platformType values are: FAS, AFF, SDOT, COT. Timeout must be
+        between 1-3600 seconds.
+      operationId: addSvmUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - in: body
+          name: storageVirtualMachine
+          description: storageVirtualMachine
+          required: true
+          schema:
+            $ref: "#/definitions/StorageVirtualMachineRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    put:
+      tags:
+        - Storage System
+      summary: Modify Storage System
+      description: >-
+        Possible platformType values are: FAS, AFF, SDOT, COT. Timeout must be
+        between 1-3600 seconds.
+      operationId: modifySvmUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - in: body
+          name: storageVirtualMachine
+          description: storageVirtualMachine
+          required: true
+          schema:
+            $ref: "#/definitions/StorageVirtualMachineRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/storage-system/{name}:
+    get:
+      tags:
+        - Storage System
+      summary: getSvmByName
+      operationId: getSvmByNameUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: name
+          in: path
+          description: name
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«StorageVirtualMachineResponse»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    delete:
+      tags:
+        - Storage System
+      summary: deleteSvm
+      operationId: deleteSvmUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: name
+          in: path
+          description: name
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«object»"
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /4.1/vcenter:
+    get:
+      tags:
+        - vCenter
+      summary: getvCenterDetails
+      operationId: getvCenterDetailsUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«RegisterVcenterResponse»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    post:
+      tags:
+        - vCenter
+      summary: registervCenter
+      operationId: registervCenterUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: registerVcenterRequest
+          description: registerVcenterRequest
+          required: true
+          schema:
+            $ref: "#/definitions/RegisterVcenterRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«object»"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+    delete:
+      tags:
+        - vCenter
+      summary: unRegistervCenter
+      operationId: unRegistervCenterUsingDELETE
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«object»"
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+  /4.1/version/scv:
+    get:
+      tags:
+        - Version
+      summary: getScvVersion
+      operationId: getScvVersionUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«VersionResponse»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/version/snapcenter:
+    get:
+      tags:
+        - Version
+      summary: getSnapCenterVersion
+      operationId: getSnapCenterVersionUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«VersionResponse»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/backups/{backupId}/snapshotlocations:
+    get:
+      tags:
+        - Virtual Machine
+      summary: Get snapshot locations
+      description: Get snapshot Locations for a backupId
+      operationId: getSnapshotLocationsUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/SnapshotLocationsList"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{moref}/attachedVmdks:
+    get:
+      tags:
+        - Virtual Machine
+      summary: Get attached VMDKs
+      description: Get attached Vmdks of a VM using Moref.
+      operationId: getDetachableVmdksUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«DetachableVmdkList»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{moref}/attachvmdks:
+    post:
+      tags:
+        - Virtual Machine
+      summary: Attach VMDKs
+      description: >-
+        Attach VMDKs from a backup, to the virtual machine from the backup (or
+        an alternate virtual machine).
+      operationId: attachVmdksUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+        - in: body
+          name: attachVmdk
+          description: attachVmdk
+          required: true
+          schema:
+            $ref: "#/definitions/AttachVmdk"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«object»"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{moref}/backups:
+    get:
+      tags:
+        - Virtual Machine
+      summary: Get VM Backups
+      description: Get VM Backups using moref
+      operationId: getVMBackupsUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/BackupResponseList"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{moref}/backups/availableesxhosts:
+    get:
+      tags:
+        - Virtual Machine
+      summary: Get available ESX Hosts
+      description: >-
+        Get available ESX Hosts for restore operation using VM moref and
+        backupId.
+      operationId: getAvailableEsxHostsUsingGET_1
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/AvailableEsxHostsList"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{moref}/backups/{backupId}/availabledatastores:
+    get:
+      tags:
+        - Virtual Machine
+      summary: Get Available Datastores
+      description: Get Available Datastores in a backup using VM Moref and the Backup Id.
+      operationId: getAvailableDatastoresUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«AvailableDatastoreList»"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{moref}/backups/{backupId}/restore:
+    post:
+      tags:
+        - Virtual Machine
+      summary: Restore a VM from a backup
+      description: >-
+        If no ESX Host is passed, it will default to first available esxHost for
+        restore operation. To get Request Body for this api, you must run Get VM
+        Backups, Get available ESX Hosts(this is optional, will use default esx
+        Host if no value is passed) and Get snapshot locations Api.
+      operationId: restoreVMUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+          format: int32
+        - in: body
+          name: restoreVMRequest
+          description: restoreVMRequest
+          required: true
+          schema:
+            $ref: "#/definitions/RestoreVMRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«object»"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{moref}/backups/{backupId}/restorevmdks:
+    post:
+      tags:
+        - Virtual Machine
+      summary: Restore a Vmdk from a backup
+      description: >-
+        If no ESX Host is passed, it will default to first available esxHost for
+        restore operation. To get Request Body for this api, you must run Get VM
+        Backups, Get available ESX Hosts(this is optional, will use default esx
+        Host if no value is passed), Get snapshot locations Api (to the
+        RestoreFrom location), the get VmdkLocations Api(to get the
+        vmdkToRestore) and get availableDatastores Api(to get the
+        restoreToLocation.
+      operationId: restoreVmdkUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+          format: int32
+        - in: body
+          name: restoreRequest
+          description: restoreRequest
+          required: true
+          schema:
+            $ref: "#/definitions/RestoreRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«object»"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{moref}/backups/{backupId}/vmdklocations:
+    get:
+      tags:
+        - Virtual Machine
+      summary: Get vmdk locations
+      description: Get vmdk Locations for given moref and backupId
+      operationId: getvmdkFromVmBackupByNameUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/SnapshotLocationsList"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{moref}/detachvmdks:
+    post:
+      tags:
+        - Virtual Machine
+      summary: Detach Vmdks
+      description: Detach Vmdks from a Virtual Machine and clean up the underlying clones.
+      operationId: detachVmdksUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+        - in: body
+          name: detachVmdkRequest
+          description: detachVmdkRequest
+          required: true
+          schema:
+            $ref: "#/definitions/DetachVmdkRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«object»"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{moref}/getLatestBackup:
+    get:
+      tags:
+        - Virtual Machine
+      summary: Get Latest VM Backup
+      description: Get VM Backups using moref
+      operationId: getLastVMBackupUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: moref
+          in: path
+          description: moref
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/BackupResponseList"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+  /4.1/vm/{uuid}/backups/{backupId}/restoreVm:
+    post:
+      tags:
+        - Virtual Machine
+      summary: Restore VM from a backup using uuid or restore a deleted VM
+      description: >-
+        If no ESX Host is passed, it will default to first available esxHost for
+        restore operation. To get Request Body for this api, you must run Get
+        Backup, Get available ESX Hosts(this is optional, will use default esx
+        Host if no value is passed) and Get snapshot locations Api.
+      operationId: restoreVMusingUUIDUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Token
+          in: header
+          description: Token
+          required: true
+          type: string
+        - name: uuid
+          in: path
+          description: uuid
+          required: true
+          type: string
+        - name: backupId
+          in: path
+          description: backupId
+          required: true
+          type: integer
+          format: int32
+        - in: body
+          name: restoreVMRequest
+          description: restoreVMRequest
+          required: true
+          schema:
+            $ref: "#/definitions/RestoreVMRequest"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Response«object»"
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+definitions:
+  AttachVmdk:
+    type: object
+    required:
+      - backupId
+      - vmdkLocation
+    properties:
+      alternateVmMoref:
+        type: string
+      backupId:
+        type: integer
+      vmdkLocation:
+        type: array
+        items:
+          $ref: "#/definitions/VmdkAndLocation"
+  AttachedVmdk:
+    type: object
+    required:
+      - attachedVmdk
+    properties:
+      attachedVmdk:
+        type: string
+  AvailableDatastoreList:
+    type: object
+    properties:
+      datastoreNameList:
+        type: array
+        items:
+          type: string
+  AvailableEsxHosts:
+    type: object
+    properties:
+      moref:
+        type: string
+      name:
+        type: string
+      vmHost:
+        type: boolean
+  AvailableEsxHostsList:
+    type: object
+    properties:
+      availableEsxHostsList:
+        type: array
+        items:
+          $ref: "#/definitions/AvailableEsxHosts"
+  BackupEntity:
+    type: object
+    properties:
+      entityName:
+        type: string
+      locations:
+        type: array
+        items:
+          type: string
+      quiesced:
+        type: boolean
+      uuid:
+        type: string
+  BackupId:
+    type: object
+    required:
+      - backupId
+    properties:
+      backupId:
+        type: integer
+  BackupRequest:
+    type: object
+    required:
+      - policyId
+      - resourceGroupId
+    properties:
+      policyId:
+        type: string
+        example: "24"
+      resourceGroupId:
+        type: string
+  BackupResponse:
+    type: object
+    properties:
+      entities:
+        type: array
+        items:
+          $ref: "#/definitions/BackupEntity"
+      id:
+        type: string
+      mounted:
+        type: boolean
+      name:
+        type: string
+      policy:
+        type: string
+      startTime:
+        type: string
+        format: date-time
+        example: "1516655164609"
+      status:
+        type: string
+      vmwareSnapshot:
+        type: string
+        example: "Yes"
+  BackupResponseList:
+    type: object
+    properties:
+      backupResponseList:
+        type: array
+        items:
+          $ref: "#/definitions/BackupResponse"
+  DatastoreDetails:
+    type: object
+    properties:
+      moref:
+        type: string
+      name:
+        type: string
+  DatastoreMorefList:
+    type: object
+    required:
+      - datastoreMorefList
+    properties:
+      datastoreMorefList:
+        type: array
+        items:
+          type: string
+  DeleteBackupsRequest:
+    type: object
+    required:
+      - listOfBackupIds
+    properties:
+      listOfBackupIds:
+        type: array
+        items:
+          $ref: "#/definitions/BackupId"
+  DetachVmdkRequest:
+    type: object
+    required:
+      - vmdksToDetach
+    properties:
+      vmdksToDetach:
+        type: array
+        items:
+          type: string
+  DetachableVmdkList:
+    type: object
+    properties:
+      detachableVmdkList:
+        type: array
+        items:
+          $ref: "#/definitions/AttachedVmdk"
+  EmailConfigurationRequest:
+    type: object
+    required:
+      - fromAddress
+      - listOfAddresses
+      - smtpServer
+    properties:
+      fromAddress:
+        type: string
+      listOfAddresses:
+        type: array
+        items:
+          type: string
+      smtpServer:
+        type: string
+  EmailConfigurationResponse:
+    type: object
+    required:
+      - fromAddress
+      - listOfAddresses
+      - smtpServer
+    properties:
+      fromAddress:
+        type: string
+        example: foo@acme.com
+        description: "From:"
+      listOfAddresses:
+        type: array
+        example: foo@acme.com,bar@acme.com
+        description: List of recipient addresses comma seperated.
+        items:
+          type: string
+      smtpServer:
+        type: string
+        example: 10.60.236.2
+        description: SMTP server ipaddress
+  File:
+    type: object
+    properties:
+      absolute:
+        type: boolean
+      absoluteFile:
+        $ref: "#/definitions/File"
+      absolutePath:
+        type: string
+      canonicalFile:
+        $ref: "#/definitions/File"
+      canonicalPath:
+        type: string
+      directory:
+        type: boolean
+      file:
+        type: boolean
+      freeSpace:
+        type: integer
+        format: int64
+      hidden:
+        type: boolean
+      name:
+        type: string
+      parent:
+        type: string
+      parentFile:
+        $ref: "#/definitions/File"
+      path:
+        type: string
+      totalSpace:
+        type: integer
+        format: int64
+      usableSpace:
+        type: integer
+        format: int64
+  InputStream:
+    type: object
+  InputStreamResource:
+    type: object
+    properties:
+      description:
+        type: string
+      file:
+        $ref: "#/definitions/File"
+      filename:
+        type: string
+      inputStream:
+        $ref: "#/definitions/InputStream"
+      open:
+        type: boolean
+      readable:
+        type: boolean
+      uri:
+        $ref: "#/definitions/URI"
+      url:
+        $ref: "#/definitions/URL"
+  Job:
+    type: object
+    properties:
+      childJobsList:
+        type: array
+        items:
+          $ref: "#/definitions/Job"
+      description:
+        type: string
+      endTime:
+        type: string
+      errorMessage:
+        type: string
+      id:
+        type: string
+      jobTypeId:
+        type: integer
+        format: int32
+      name:
+        type: string
+      percentageCompleted:
+        type: integer
+        format: int32
+      startTime:
+        type: string
+      status:
+        type: string
+  LoginRequest:
+    type: object
+    required:
+      - password
+      - username
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+        example: domain\username
+  LoginResponse:
+    type: object
+    properties:
+      ip:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+  MountBackupDatastoreDetails:
+    type: object
+    required:
+      - datastoreName
+      - snapshotLocation
+    properties:
+      datastoreName:
+        type: string
+      snapshotLocation:
+        type: string
+  MountRequest:
+    type: object
+    required:
+      - datastoreDetails
+      - esxiHostName
+    properties:
+      datastoreDetails:
+        type: array
+        items:
+          $ref: "#/definitions/MountBackupDatastoreDetails"
+      esxiHostName:
+        type: string
+        example: 10.10.10.20
+  PolicyRequest:
+    type: object
+    required:
+      - frequency
+      - name
+      - retention
+    properties:
+      description:
+        type: string
+      frequency:
+        type: string
+      includeIndependentDisks:
+        type: boolean
+      name:
+        type: string
+      retention:
+        $ref: "#/definitions/PolicyRetention"
+      scripts:
+        type: array
+        items:
+          type: string
+      snapshotLabel:
+        type: string
+      updateSnapmirror:
+        type: boolean
+      updateSnapvault:
+        type: boolean
+      vmConsistent:
+        type: boolean
+  PolicyResponse:
+    type: object
+    properties:
+      description:
+        type: string
+      frequency:
+        type: string
+      id:
+        type: string
+      includeIndependentDisks:
+        type: boolean
+      name:
+        type: string
+      retention:
+        $ref: "#/definitions/PolicyRetention"
+      scripts:
+        type: array
+        items:
+          type: string
+      snapshotLabel:
+        type: string
+      updateSnapmirror:
+        type: boolean
+      updateSnapvault:
+        type: boolean
+      vmConsistent:
+        type: boolean
+  PolicyResponseList:
+    type: object
+    properties:
+      policyResponseList:
+        type: array
+        items:
+          $ref: "#/definitions/PolicyResponse"
+  PolicyRetention:
+    type: object
+    required:
+      - type
+      - value
+    properties:
+      type:
+        type: string
+      value:
+        type: integer
+        format: int32
+  ProtectedVmList:
+    type: object
+    required:
+      - protectedVmList
+    properties:
+      protectedVmList:
+        type: array
+        items:
+          $ref: "#/definitions/VmProtectionReport"
+  RegisterSnapCenterRequest:
+    type: object
+    required:
+      - ipAddress
+      - password
+      - port
+      - userName
+    properties:
+      ipAddress:
+        type: string
+      password:
+        type: string
+      port:
+        type: integer
+        format: int32
+      userName:
+        type: string
+        example: domain\username
+  RegisterSnapCenterResponse:
+    type: object
+    properties:
+      ipAddress:
+        type: string
+      port:
+        type: integer
+        format: int32
+  RegisterVcenterRequest:
+    type: object
+    required:
+      - ipAddress
+      - password
+      - port
+      - userName
+    properties:
+      ipAddress:
+        type: string
+      password:
+        type: string
+      port:
+        type: integer
+        format: int32
+      userName:
+        type: string
+  RegisterVcenterResponse:
+    type: object
+    properties:
+      ipAddress:
+        type: string
+      port:
+        type: integer
+        format: int32
+      userName:
+        type: string
+  RenameBackupRequest:
+    type: object
+    required:
+      - newName
+    properties:
+      newName:
+        type: string
+  ResourceGroupEmailConfiguration:
+    type: object
+    required:
+      - fromAddress
+      - listOfToAddresses
+    properties:
+      fromAddress:
+        type: string
+        example: foo@acme.com
+        description: "From:"
+      listOfToAddresses:
+        type: array
+        description: List of recipient addresses comma seperated.
+        items:
+          type: string
+      subject:
+        type: string
+        example: subject verbiage.
+        description: Subject of the notification email.
+  ResourceGroupPolicy:
+    type: object
+    required:
+      - id
+      - schedule
+    properties:
+      id:
+        type: string
+      schedule:
+        $ref: "#/definitions/ScheduleDetails"
+  ResourceGroupPolicyResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      schedule:
+        $ref: "#/definitions/ScheduleDetails"
+      scheduleType:
+        type: string
+  ResourceGroupRequest:
+    type: object
+    required:
+      - entities
+      - name
+      - notification
+      - policies
+    properties:
+      customSnapshotFormat:
+        type: string
+      customSnapshotText:
+        type: string
+      description:
+        type: string
+      emailConfiguration:
+        $ref: "#/definitions/ResourceGroupEmailConfiguration"
+      entities:
+        type: array
+        items:
+          type: string
+      isCustomSnapshot:
+        type: boolean
+      name:
+        type: string
+      notification:
+        type: string
+      policies:
+        type: array
+        items:
+          $ref: "#/definitions/ResourceGroupPolicy"
+      spanningDatastores:
+        $ref: "#/definitions/SpanningDatastores"
+  ResourceGroupResponse:
+    type: object
+    properties:
+      customSnapshotFormat:
+        type: string
+      customSnapshotText:
+        type: string
+      description:
+        type: string
+      emailConfiguration:
+        $ref: "#/definitions/ResourceGroupEmailConfiguration"
+      entities:
+        type: array
+        items:
+          type: string
+      id:
+        type: string
+      isCustomSnapshot:
+        type: boolean
+      maintenanceStatus:
+        type: string
+      name:
+        type: string
+      notification:
+        type: string
+      policies:
+        type: array
+        items:
+          $ref: "#/definitions/ResourceGroupPolicyResponse"
+      spanningDatastores:
+        $ref: "#/definitions/SpanningDatastores"
+  ResourceGroupResponseList:
+    type: object
+    properties:
+      resourceGroupResponseList:
+        type: array
+        items:
+          $ref: "#/definitions/ResourceGroupResponse"
+  Response:
+    type: object
+    properties:
+      response:
+        type: object
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«AvailableDatastoreList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/AvailableDatastoreList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«AvailableEsxHostsList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/AvailableEsxHostsList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«BackupResponseList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/BackupResponseList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«BackupResponse»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/BackupResponse"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«DetachableVmdkList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/DetachableVmdkList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«EmailConfigurationResponse»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/EmailConfigurationResponse"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«Job»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/Job"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«List«AvailableEsxHosts»»:
+    type: object
+    properties:
+      response:
+        type: array
+        items:
+          $ref: "#/definitions/AvailableEsxHosts"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«List«DatastoreDetails»»:
+    type: object
+    properties:
+      response:
+        type: array
+        items:
+          $ref: "#/definitions/DatastoreDetails"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«List«Job»»:
+    type: object
+    properties:
+      response:
+        type: array
+        items:
+          $ref: "#/definitions/Job"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«LoginResponse»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/LoginResponse"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«PolicyResponseList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/PolicyResponseList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«PolicyResponse»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/PolicyResponse"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«ProtectedVmList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/ProtectedVmList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«RegisterSnapCenterResponse»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/RegisterSnapCenterResponse"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«RegisterVcenterResponse»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/RegisterVcenterResponse"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«ResourceGroupResponseList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/ResourceGroupResponseList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«ResourceGroupResponse»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/ResourceGroupResponse"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«SnapshotLocationsList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/SnapshotLocationsList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«StorageVirtualMachineList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/StorageVirtualMachineList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«StorageVirtualMachineResponse»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/StorageVirtualMachineResponse"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«UnProtectedVmList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/UnProtectedVmList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«VersionResponse»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/VersionResponse"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«VmdkAndLocationsList»:
+    type: object
+    properties:
+      response:
+        $ref: "#/definitions/VmdkAndLocationsList"
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  Response«object»:
+    type: object
+    properties:
+      response:
+        type: object
+      responseMessage:
+        type: array
+        items:
+          type: string
+      statusCode:
+        type: integer
+        format: int32
+      statusMessage:
+        type: string
+  RestoreLocations:
+    type: object
+    required:
+      - datastoreName
+      - sourceLocation
+    properties:
+      datastoreName:
+        type: string
+      sourceLocation:
+        type: string
+  RestoreRequest:
+    type: object
+    required:
+      - esxHost
+      - restartVM
+      - vmdkRestoreLocations
+    properties:
+      esxHost:
+        type: string
+      restartVM:
+        type: boolean
+        example: false
+      vmdkRestoreLocations:
+        type: array
+        items:
+          $ref: "#/definitions/VmdkRestoreLocations"
+  RestoreVMRequest:
+    type: object
+    required:
+      - esxHost
+      - restartVM
+      - restoreLocations
+    properties:
+      esxHost:
+        type: string
+      restartVM:
+        type: boolean
+        example: false
+      restoreLocations:
+        type: array
+        items:
+          $ref: "#/definitions/RestoreLocations"
+  ScheduleDetails:
+    type: object
+    required:
+      - daysForMonthlyPolicy
+      - daysForWeeklyPolicy
+      - monthsForMonthlyPolicy
+      - reccurrenceForDailyPolicy
+      - reccurrenceForHourlyPolicy
+      - startDate
+      - startHour
+      - startMinute
+    properties:
+      daysForMonthlyPolicy:
+        type: array
+        items:
+          type: string
+      daysForWeeklyPolicy:
+        type: array
+        items:
+          type: string
+      monthsForMonthlyPolicy:
+        type: array
+        items:
+          type: string
+      reccurrenceForDailyPolicy:
+        type: integer
+        format: int32
+      reccurrenceForHourlyPolicy:
+        type: integer
+        format: int32
+      startDate:
+        type: string
+        example: "2018-04-29"
+      startHour:
+        type: string
+        example: "18"
+      startMinute:
+        type: string
+        example: "47"
+  SnapshotLocations:
+    type: object
+    properties:
+      datastore:
+        type: string
+      locations:
+        type: array
+        items:
+          type: string
+  SnapshotLocationsList:
+    type: object
+    properties:
+      snapshotLocationsList:
+        type: array
+        items:
+          $ref: "#/definitions/SnapshotLocations"
+  SpanningDatastores:
+    type: object
+    properties:
+      listOfDatastores:
+        type: array
+        items:
+          type: string
+      spanningType:
+        type: string
+  StorageVirtualMachineList:
+    type: object
+    properties:
+      storageVirtualMachineList:
+        type: array
+        items:
+          $ref: "#/definitions/StorageVirtualMachineResponse"
+  StorageVirtualMachineRequest:
+    type: object
+    required:
+      - name
+      - password
+      - platformType
+      - port
+      - protocol
+      - userName
+    properties:
+      asup:
+        type: boolean
+        example: false
+        description: Set to true, if you wish to send ASUP (EMS messages) on failure.
+      name:
+        type: string
+        example: 10.60.130.1
+        description: The management ip address or fqdn of the storage (SVM).
+      password:
+        type: string
+        example: password
+      platformType:
+        type: string
+        example: FAS
+        description: FAS or AFF
+      port:
+        type: integer
+        format: int32
+        example: 443
+        description: The port is 80 for HTTP and 443 for HTTPS.
+      preferredIp:
+        type: string
+        example: 10.20.30.40
+        description: Set the preferred ip.
+      protocol:
+        type: string
+        example: HTTPS
+        description: >-
+          Set the protocol used to connect to the filer control plane
+          (HTTP/HTTPS).
+      syslog:
+        type: boolean
+        example: true
+      timeout:
+        type: integer
+        format: int32
+        example: 120
+        description: Configurable timeout in seconds.
+      userName:
+        type: string
+        example: admin
+        description: The ONTAP RBAC user name.
+  StorageVirtualMachineResponse:
+    type: object
+    required:
+      - name
+      - password
+      - platformType
+      - port
+      - protocol
+      - userName
+    properties:
+      asup:
+        type: boolean
+        example: false
+        description: Set to true, if you wish to send ASUP (EMS messages) on failure.
+      name:
+        type: string
+        example: 10.60.130.1
+        description: The management ip address or fqdn of the storage (SVM).
+      password:
+        type: string
+        example: password
+      platformType:
+        type: string
+        example: FAS
+        description: FAS or AFF
+      port:
+        type: integer
+        format: int32
+        example: 443
+        description: The port is 80 for HTTP and 443 for HTTPS.
+      preferredIp:
+        type: string
+        example: 10.20.30.40
+        description: Set the preferred ip.
+      protocol:
+        type: string
+        example: HTTPS
+        description: >-
+          Set the protocol used to connect to the filer control plane
+          (HTTP/HTTPS).
+      syslog:
+        type: boolean
+        example: true
+      timeout:
+        type: integer
+        format: int32
+        example: 120
+        description: Configurable timeout in seconds.
+      type:
+        type: string
+        example: ONTAP Cluster
+        description: ONTAP Cluster or ONTAP SVM
+      userName:
+        type: string
+        example: admin
+        description: The ONTAP RBAC user name.
+  URI:
+    type: object
+    properties:
+      absolute:
+        type: boolean
+      authority:
+        type: string
+      fragment:
+        type: string
+      host:
+        type: string
+      opaque:
+        type: boolean
+      path:
+        type: string
+      port:
+        type: integer
+        format: int32
+      query:
+        type: string
+      rawAuthority:
+        type: string
+      rawFragment:
+        type: string
+      rawPath:
+        type: string
+      rawQuery:
+        type: string
+      rawSchemeSpecificPart:
+        type: string
+      rawUserInfo:
+        type: string
+      scheme:
+        type: string
+      schemeSpecificPart:
+        type: string
+      userInfo:
+        type: string
+  URL:
+    type: object
+    properties:
+      authority:
+        type: string
+      content:
+        type: object
+      defaultPort:
+        type: integer
+        format: int32
+      file:
+        type: string
+      host:
+        type: string
+      path:
+        type: string
+      port:
+        type: integer
+        format: int32
+      protocol:
+        type: string
+      query:
+        type: string
+      ref:
+        type: string
+      userInfo:
+        type: string
+  UnProtectedVmList:
+    type: object
+    required:
+      - unProtectedVmList
+    properties:
+      unProtectedVmList:
+        type: array
+        items:
+          $ref: "#/definitions/VmProtectionReport"
+  VersionResponse:
+    type: object
+    properties:
+      version:
+        type: string
+  VmProtectionReport:
+    type: object
+    properties:
+      backupName:
+        type: string
+      endTime:
+        type: string
+      startTime:
+        type: string
+      vmName:
+        type: string
+      vmUuid:
+        type: string
+  VmdkAndLocation:
+    type: object
+    required:
+      - locations
+      - vmdk
+    properties:
+      locations:
+        type: array
+        items:
+          type: string
+      vmdk:
+        type: string
+  VmdkAndLocationsList:
+    type: object
+    required:
+      - vmdkLocationsList
+    properties:
+      vmdkLocationsList:
+        type: array
+        items:
+          $ref: "#/definitions/VmdkAndLocation"
+  VmdkRestoreLocations:
+    type: object
+    required:
+      - restoreFromLocation
+      - restoreToDatastore
+      - vmdkToRestore
+    properties:
+      restoreFromLocation:
+        type: string
+      restoreToDatastore:
+        type: string
+      vmdkToRestore:
+        type: string

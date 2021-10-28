@@ -1,16 +1,32 @@
 powershell: true
 version: latest
-input-file: scv.api-docs.json
+input-file: scv.api-docs.yaml
 title: NetApp.SCV
-use: '@autorest/powershell@latest'
-module-version: 0.1.0
-subject-prefix: 'Scv'
+use: "@autorest/powershell@latest"
 azure: false
+subject-prefix: "Scv"
 namespace: NetApp.SCV
 output-folder: ..\..\NetApp.SCV
+module-folder: NetApp.SCV
+module-version: 0.1.0
+sanitize-names: true
 clear-output-folder: true
 use-internal-constructors: true
-use-datetimeoffset : true
+use-datetimeoffset: true
+metadata:
+  authors: "Joseph Pulk"
+  owners: NetApp
+  description: "PowerShell Module for interacting with NetApp SnapCenter plugin for VMware"
+  copyright: "(c) 2017-2021 NetApp. All rights reserved."
+  tags: NetApp SnapCenter VMware
+  companyName: NetApp
+  requireLicenseAcceptance: true
+  licenseUri: ""
 directive:
-- no-inline:  # choose ONE of these models to disable inlining
-  - File
+  - no-inline:
+      - File
+  - where:
+      verb: Get
+      subject: ScvDetachableVmdkUsingGet
+    set:
+      subject: ScvDetachableVmdk
